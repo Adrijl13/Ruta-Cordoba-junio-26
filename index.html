@@ -1,0 +1,352 @@
+
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .wrap { padding: 1rem 0; }
+  h2 { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  .subtitle { font-size: 12px; color: var(--color-text-secondary); margin: 0 0 14px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--color-text-secondary); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid; flex-shrink: 0; }
+  .route-line { position: relative; padding-left: 28px; }
+  .route-line::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: var(--color-border-secondary); }
+  .stop { position: relative; margin-bottom: 0; }
+  .stop-dot { position: absolute; left: -24px; top: 18px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid; background: var(--color-background-primary); z-index: 1; }
+  .stop-dot.home { border-color: var(--color-text-primary); background: var(--color-text-primary); width:14px; height:14px; left:-25px; }
+  .stop-dot.tesla { border-color: #e31937; }
+  .stop-dot.ionity { border-color: #5a2d82; }
+  .stop-dot.endesa { border-color: #00b050; }
+  .stop-dot.multi { border-color: #1a6fad; }
+  .stop-dot.dest { border-color: var(--color-text-primary); background: var(--color-text-primary); width:14px; height:14px; left:-25px; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 10px 12px; margin-bottom: 10px; }
+  .card.dest-card { border: 1.5px solid var(--color-border-primary); }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .card-left { flex: 1; min-width: 0; }
+  .stop-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); line-height: 1.3; }
+  .stop-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+  .bat-block { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+  .bat-pct { font-size: 18px; font-weight: 500; }
+  .bat-pct.green { color: #2d8a4e; }
+  .bat-pct.amber { color: #a05c00; }
+  .bat-pct.red { color: #c0392b; }
+  .bat-bar-wrap { width: 56px; height: 7px; border-radius: 4px; background: var(--color-background-secondary); overflow: hidden; }
+  .bat-bar { height: 100%; border-radius: 4px; }
+  .bat-bar.green { background: #2d8a4e; }
+  .bat-bar.amber { background: #e8a020; }
+  .bat-bar.red { background: #c0392b; }
+  .bat-label { font-size: 10px; color: var(--color-text-tertiary); }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+  .tag { font-size: 11px; padding: 2px 7px; border-radius: 20px; font-weight: 500; }
+  .tag-tesla { background: #fff0f2; color: #a0001f; border: 0.5px solid #f5b8c0; }
+  .tag-ionity { background: #f0ebf7; color: #3d1d5e; border: 0.5px solid #c9b8e0; }
+  .tag-endesa { background: #ebf7f0; color: #006633; border: 0.5px solid #9fd4b5; }
+  .tag-n { background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+  .price-row { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .price-item { font-size: 11px; color: var(--color-text-secondary); }
+  .price-val { font-weight: 500; color: var(--color-text-primary); }
+  .charge-row { display: flex; align-items: center; gap: 6px; margin-top: 7px; font-size: 12px; color: var(--color-text-secondary); }
+  .arrow { color: #2d8a4e; font-weight: 500; }
+  .divider-stop { display: flex; align-items: center; gap: 6px; margin: 2px 0 6px; }
+  .divider-label { font-size: 10px; color: var(--color-text-tertiary); white-space: nowrap; }
+  .divider-line { flex: 1; height: 0.5px; background: var(--color-border-tertiary); }
+  .alert { font-size: 11px; background: #fffbeb; border: 0.5px solid #f5d790; border-radius: var(--border-radius-md); padding: 5px 9px; margin-top: 6px; color: #7a4f00; }
+  .good-note { font-size: 11px; color: var(--color-text-secondary); margin-top: 6px; }
+  .nav-btn { display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; font-size: 11px; font-weight: 500; padding: 5px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); color: var(--color-text-secondary); text-decoration: none; background: var(--color-background-secondary); }
+</style>
+
+<div class="wrap">
+  <h2>A-4 Madrid → Córdoba · Batería estimada</h2>
+  <p class="subtitle">Consumo: 25 kWh/100km · Salida: 100% (74 kWh) · Crucero: ~135 km/h</p>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="border-color:#e31937;"></div>Tesla SC</div>
+    <div class="legend-item"><div class="legend-dot" style="border-color:#5a2d82;"></div>IONITY</div>
+    <div class="legend-item"><div class="legend-dot" style="border-color:#00b050;"></div>Endesa</div>
+    <div class="legend-item"><div class="legend-dot" style="border-color:#1a6fad;"></div>Varios</div>
+  </div>
+
+  <div class="route-line">
+
+    <!-- CASA -->
+    <div class="stop">
+      <div class="stop-dot home"></div>
+      <div class="card">
+        <div class="card-top">
+          <div class="card-left">
+            <div class="stop-name">🏠 Casa — Calle Albalá 10</div>
+            <div class="stop-sub">Madrid · km 0</div>
+          </div>
+          <div class="bat-block">
+            <div class="bat-pct green">100%</div>
+            <div class="bat-bar-wrap"><div class="bat-bar green" style="width:100%"></div></div>
+            <div class="bat-label">74 kWh</div>
+          </div>
+        </div>
+        <a class="nav-btn" href="https://maps.google.com/?q=Calle+Albala+10,+28037+Madrid" target="_blank">
+          <i class="ti ti-map-pin" aria-hidden="true"></i> Abrir en Maps
+        </a>
+      </div>
+    </div>
+
+    <div class="divider-stop"><div class="divider-line"></div><div class="divider-label">173 km · −43 kWh</div><div class="divider-line"></div></div>
+
+    <!-- KM 173 MANZANARES -->
+    <div class="stop">
+      <div class="stop-dot tesla"></div>
+      <div class="card">
+        <div class="card-top">
+          <div class="card-left">
+            <div class="stop-name">Tesla SC — Hotel El Cruce</div>
+            <div class="stop-sub">Manzanares · km 173</div>
+          </div>
+          <div class="bat-block">
+            <div class="bat-pct amber">41%</div>
+            <div class="bat-bar-wrap"><div class="bat-bar amber" style="width:41%"></div></div>
+            <div class="bat-label">~31 kWh</div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-tesla">Tesla SC · 12 puestos · 250 kW</span>
+          <span class="tag tag-n">V3 · CCS2 · 24h</span>
+        </div>
+        <div class="price-row">
+          <div class="price-item">hasta 18h: <span class="price-val">0,55 €/kWh</span></div>
+          <div class="price-item">18–22h: <span class="price-val">0,61 €/kWh</span></div>
+        </div>
+        <div class="alert">⚠️ Reseñas: puestos fuera de servicio, potencia real 90–110 kW con varios coches. Verificar en app.</div>
+        <a class="nav-btn" href="https://maps.google.com/?q=Tesla+Supercharger+Manzanares+Hotel+El+Cruce+km+173+A4" target="_blank">
+          <i class="ti ti-map-pin" aria-hidden="true"></i> Abrir en Maps
+        </a>
+      </div>
+    </div>
+
+    <div class="divider-stop"><div class="divider-line"></div><div class="divider-label">18 km · −5 kWh</div><div class="divider-line"></div></div>
+
+    <!-- KM 191 IONITY -->
+    <div class="stop">
+      <div class="stop-dot ionity"></div>
+      <div class="card">
+        <div class="card-top">
+          <div class="card-left">
+            <div class="stop-name">IONITY — El Hidalgo</div>
+            <div class="stop-sub">Valdepeñas · km ~191</div>
+          </div>
+          <div class="bat-block">
+            <div class="bat-pct amber">34%</div>
+            <div class="bat-bar-wrap"><div class="bat-bar amber" style="width:34%"></div></div>
+            <div class="bat-label">~25 kWh</div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-ionity">IONITY · 4 puestos · 350 kW</span>
+        </div>
+        <div class="price-row">
+          <div class="price-item">Sin sub: <span class="price-val">0,62 €/kWh</span></div>
+          <div class="price-item">BMW+IONITY: <span class="price-val">0,34 €/kWh</span></div>
+        </div>
+        <div class="alert">⚠️ Solo 4 puestos — posible espera en agosto.</div>
+        <a class="nav-btn" href="https://maps.google.com/?q=IONITY+El+Hidalgo+Valdepenas+A4" target="_blank">
+          <i class="ti ti-map-pin" aria-hidden="true"></i> Abrir en Maps
+        </a>
+      </div>
+    </div>
+
+    <div class="divider-stop"><div class="divider-line"></div><div class="divider-label">6 km · −2 kWh</div><div class="divider-line"></div></div>
+
+    <!-- KM 197 VALDEPEÑAS ⭐ -->
+    <div class="stop">
+      <div class="stop-dot multi"></div>
+      <div class="card" style="border-color: var(--color-border-info);">
+        <div class="card-top">
+          <div class="card-left">
+            <div class="stop-name">⭐ Tesla SC + Endesa — Valdepeñas</div>
+            <div class="stop-sub">Decathlon · km 197</div>
+          </div>
+          <div class="bat-block">
+            <div class="bat-pct amber">31%</div>
+            <div class="bat-bar-wrap"><div class="bat-bar amber" style="width:31%"></div></div>
+            <div class="bat-label">~23 kWh</div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-tesla">Tesla · 12 puestos · 250 kW</span>
+          <span class="tag tag-endesa">Endesa · 6 puestos</span>
+        </div>
+        <div class="price-row">
+          <div class="price-item">Tesla hasta 18h: <span class="price-val">0,55 €</span></div>
+          <div class="price-item">Tesla 18–22h: <span class="price-val">0,61 €</span></div>
+          <div class="price-item">Endesa: <span class="price-val">0,55 €/kWh</span></div>
+        </div>
+        <div class="charge-row">
+          <span>31%</span><span class="arrow">→ carga a 90% →</span><span style="color:#2d8a4e; font-weight:500;">+44 kWh</span>
+        </div>
+        <div class="good-note">✅ Parada principal recomendada. 18 puestos totales.</div>
+        <a class="nav-btn" href="https://maps.google.com/?q=Tesla+Supercharger+Valdepenas+Decathlon+Ciudad+Real" target="_blank">
+          <i class="ti ti-map-pin" aria-hidden="true"></i> Abrir en Maps
+        </a>
+      </div>
+    </div>
+
+    <div class="divider-stop"><div class="divider-line"></div><div class="divider-label">13 km · −3 kWh (sale al 90%)</div><div class="divider-line"></div></div>
+
+    <!-- KM 210 SANTA CRUZ -->
+    <div class="stop">
+      <div class="stop-dot endesa"></div>
+      <div class="card">
+        <div class="card-top">
+          <div class="card-left">
+            <div class="stop-name">Endesa — Santa Cruz de Mudela</div>
+            <div class="stop-sub">km 210</div>
+          </div>
+          <div class="bat-block">
+            <div class="bat-pct green">86%</div>
+            <div class="bat-bar-wrap"><div class="bat-bar green" style="width:86%"></div></div>
+            <div class="bat-label">~64 kWh</div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-endesa">Endesa HPC · 6 puestos</span>
+          <span class="tag tag-n">añadido oct 2025</span>
+        </div>
+        <div class="price-row">
+          <div class="price-item">Tarifa única: <span class="price-val">0,55 €/kWh</span></div>
+        </div>
+        <div class="good-note">Parada de rescate si Valdepeñas está lleno.</div>
+        <a class="nav-btn" href="https://maps.google.com/?q=Endesa+cargador+Santa+Cruz+de+Mudela+A4+Ciudad+Real" target="_blank">
+          <i class="ti ti-map-pin" aria-hidden="true"></i> Abrir en Maps
+        </a>
+      </div>
+    </div>
+
+    <div class="divider-stop"><div class="divider-line"></div><div class="divider-label">49 km · −12 kWh · zona sin cargadores premium</div><div class="divider-line"></div></div>
+
+    <!-- KM 259 SANTA ELENA -->
+    <div class="stop">
+      <div class="stop-dot endesa"></div>
+      <div class="card">
+        <div class="card-top">
+          <div class="card-left">
+            <div class="stop-name">Endesa — Santa Elena</div>
+            <div class="stop-sub">km 259</div>
+          </div>
+          <div class="bat-block">
+            <div class="bat-pct amber">70%</div>
+            <div class="bat-bar-wrap"><div class="bat-bar green" style="width:70%"></div></div>
+            <div class="bat-label">~52 kWh</div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-endesa">Endesa · 4 puestos</span>
+        </div>
+        <div class="price-row">
+          <div class="price-item">Tarifa única: <span class="price-val">0,55 €/kWh</span></div>
+        </div>
+        <div class="alert">ℹ️ Si sales de Valdepeñas al 90%, llegas aquí con ~70% — no necesitas parar. Solo si saliste con poco.</div>
+        <a class="nav-btn" href="https://maps.google.com/?q=Endesa+cargador+Santa+Elena+Jaen+A4+km+259" target="_blank">
+          <i class="ti ti-map-pin" aria-hidden="true"></i> Abrir en Maps
+        </a>
+      </div>
+    </div>
+
+    <div class="divider-stop"><div class="divider-line"></div><div class="divider-label">21–29 km · −5–7 kWh</div><div class="divider-line"></div></div>
+
+    <!-- KM 280-288 GUARROMÁN -->
+    <div class="stop">
+      <div class="stop-dot multi"></div>
+      <div class="card">
+        <div class="card-top">
+          <div class="card-left">
+            <div class="stop-name">Tesla SC × 2 + Endesa — Guarromán</div>
+            <div class="stop-sub">Los Ríos + Andamur · km 280–288</div>
+          </div>
+          <div class="bat-block">
+            <div class="bat-pct green">63%</div>
+            <div class="bat-bar-wrap"><div class="bat-bar green" style="width:63%"></div></div>
+            <div class="bat-label">~47 kWh</div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-tesla">Tesla Los Ríos · 8 puestos</span>
+          <span class="tag tag-tesla">Tesla Andamur · 8 puestos</span>
+          <span class="tag tag-endesa">Endesa · 6 puestos</span>
+        </div>
+        <div class="price-row">
+          <div class="price-item">Tesla hasta 18h: <span class="price-val">0,49 €/kWh</span> 💚 más barato</div>
+          <div class="price-item">Tesla 18–22h: <span class="price-val">0,53 €/kWh</span></div>
+          <div class="price-item">Endesa: <span class="price-val">0,55 €/kWh</span></div>
+        </div>
+        <div class="good-note">22 puestos Tesla + 6 Endesa. Sin esperas en temporada alta.</div>
+        <a class="nav-btn" href="https://maps.google.com/?q=Tesla+Supercharger+Los+Rios+SCA+Guarroman+Jaen" target="_blank">
+          <i class="ti ti-map-pin" aria-hidden="true"></i> Los Ríos en Maps
+        </a>
+        <a class="nav-btn" href="https://maps.google.com/?q=Tesla+Supercharger+Andamur+Guarroman+Jaen+A4+km+288" target="_blank">
+          <i class="ti ti-map-pin" aria-hidden="true"></i> Andamur en Maps
+        </a>
+      </div>
+    </div>
+
+    <div class="divider-stop"><div class="divider-line"></div><div class="divider-label">42 km · −11 kWh</div><div class="divider-line"></div></div>
+
+    <!-- KM 330 MARMOLEJO -->
+    <div class="stop">
+      <div class="stop-dot tesla"></div>
+      <div class="card">
+        <div class="card-top">
+          <div class="card-left">
+            <div class="stop-name">Tesla SC — Marmolejo</div>
+            <div class="stop-sub">Av. África · km 330</div>
+          </div>
+          <div class="bat-block">
+            <div class="bat-pct green">48%</div>
+            <div class="bat-bar-wrap"><div class="bat-bar green" style="width:48%"></div></div>
+            <div class="bat-label">~36 kWh</div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-tesla">Tesla SC · 8 puestos · CCS2 · 24h</span>
+        </div>
+        <div class="price-row">
+          <div class="price-item">hasta 18h: <span class="price-val">0,55 €/kWh</span></div>
+          <div class="price-item">18–22h: <span class="price-val">0,61 €/kWh</span></div>
+        </div>
+        <div class="good-note">Top-up opcional si no paraste en Guarromán o quieres llegar a Córdoba con más margen.</div>
+        <a class="nav-btn" href="https://maps.google.com/?q=Avenida+Africa+8+Marmolejo+Jaen+23770" target="_blank">
+          <i class="ti ti-map-pin" aria-hidden="true"></i> Abrir en Maps
+        </a>
+      </div>
+    </div>
+
+    <div class="divider-stop"><div class="divider-line"></div><div class="divider-label">~70 km · −18 kWh</div><div class="divider-line"></div></div>
+
+    <!-- CÓRDOBA DESTINO -->
+    <div class="stop">
+      <div class="stop-dot dest"></div>
+      <div class="card dest-card">
+        <div class="card-top">
+          <div class="card-left">
+            <div class="stop-name">🏁 Tesla SC — Córdoba destino</div>
+            <div class="stop-sub">Calle Gema 7 · Córdoba</div>
+          </div>
+          <div class="bat-block">
+            <div class="bat-pct green">30%</div>
+            <div class="bat-bar-wrap"><div class="bat-bar amber" style="width:30%"></div></div>
+            <div class="bat-label">~22 kWh</div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-tesla">Tesla SC · 8 puestos · CCS2</span>
+        </div>
+        <div class="price-row">
+          <div class="price-item">Tarifa única: <span class="price-val">0,57 €/kWh</span></div>
+        </div>
+        <div class="charge-row">
+          <span>30%</span><span class="arrow">→ carga nocturna 10→90% →</span><span style="color:#2d8a4e; font-weight:500;">listo para vuelta</span>
+        </div>
+        <a class="nav-btn" href="https://maps.google.com/?q=Calle+Gema+7+Cordoba" target="_blank">
+          <i class="ti ti-map-pin" aria-hidden="true"></i> Abrir en Maps
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
